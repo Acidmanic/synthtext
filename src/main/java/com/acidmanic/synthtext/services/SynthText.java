@@ -51,8 +51,9 @@ public class SynthText {
                 outputContent = outputContent.replace(key, value);
             }
             
-            File outputFile = inputFile.getParentFile()
-                    .toPath().resolve(table.getOutputFilename())
+            File outputFile = inputFile.toPath().toAbsolutePath()
+                    .getParent().normalize()
+                    .resolve(table.getOutputFilename())
                     .toFile();
             
             try {
