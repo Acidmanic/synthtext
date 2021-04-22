@@ -7,6 +7,7 @@ package com.acidmanic.synthtext;
 
 import com.acidmanic.commandline.commands.Help;
 import com.acidmanic.commandline.commands.TypeRegistery;
+import com.acidmanic.synthtext.commands.Generate;
 
 /**
  *
@@ -17,6 +18,7 @@ public class ApplicationRegistery extends TypeRegistery {
     public ApplicationRegistery() {
 
         this.registerClass(Help.class);
+        this.registerClass(Generate.class);
     }
 
 }

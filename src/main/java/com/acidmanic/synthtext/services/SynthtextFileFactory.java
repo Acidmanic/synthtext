@@ -6,6 +6,9 @@
 package com.acidmanic.synthtext.services;
 
 import com.acidmanic.commandline.commands.TypeRegistery;
+import com.acidmanic.synthtext.services.synthtextfiles.BashScript;
+import com.acidmanic.synthtext.services.synthtextfiles.Java;
+import com.acidmanic.synthtext.services.synthtextfiles.Yaml;
 import java.io.File;
 import java.util.List;
 
@@ -22,6 +25,9 @@ public class SynthtextFileFactory {
         this.typeRegistery = new TypeRegistery();
 
         //REGISTER ANY NEW FILE HERE
+        this.typeRegistery.registerClass(Yaml.class);
+        this.typeRegistery.registerClass(Java.class);
+        this.typeRegistery.registerClass(BashScript.class);
     }
 
     public SynthtextFile make(File file) {
