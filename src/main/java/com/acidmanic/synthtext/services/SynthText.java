@@ -6,13 +6,14 @@
 package com.acidmanic.synthtext.services;
 
 import com.acidmanic.io.file.FileIOHelper;
-import com.acidmanic.synthtext.models.CommentTags;
-import com.acidmanic.synthtext.models.builtin.CommentMarkers;
+import com.acidmanic.synthtext.models.CommentProfile;
+import com.acidmanic.synthtext.models.MarkedText;
 import com.acidmanic.synthtext.models.SynthTable;
-import com.acidmanic.synthtext.services.comment.CommentExtractor;
-import com.acidmanic.synthtext.services.comment.MultiLineCommentExtractor;
-import com.acidmanic.synthtext.services.comment.SingleLineCommentExtractor;
+import com.acidmanic.synthtext.models.TextMark;
+import com.acidmanic.synthtext.models.TextType;
+import com.acidmanic.synthtext.models.builtin.CommentProfiles;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,68 +24,61 @@ public class SynthText {
 
     private final File inputFile;
     private final String inputContent;
+    private CommentProfile commentProfile;
 
-    public SynthText(File inputFile) {
+    public SynthText(File inputFile, CommentProfile commentProfile) {
         this.inputFile = inputFile;
 
         this.inputContent = new FileIOHelper().tryReadAllText(inputFile);
+
+        this.commentProfile = commentProfile;
     }
 
     public void generate() {
 
-        SynthtextFile synthFile = new SynthtextFileFactory().make(inputFile);
+        if (this.commentProfile == CommentProfiles.NULL) {
 
-        if (synthFile != null) {
-
-            String allComments = extractAllComments(synthFile, this.inputContent);
-
-            List<String> allSynthLines = extractSynthLines(allComments);
-
-            SynthTable table = readSynthTable(allSynthLines);
-            
-            String outputContent = inputContent;
-            
-            for(String key:table.getReplaces().keySet()){
-                
-                String value = table.getReplaces().get(key);
-                
-                outputContent = outputContent.replace(key, value);
-            }
-            
-            File outputFile = inputFile.toPath().toAbsolutePath()
-                    .getParent().normalize()
-                    .resolve(table.getOutputFilename())
-                    .toFile();
-            
-            try {
-                new FileIOHelper().tryWriteAll(outputFile, outputContent);
-            } catch (Exception e) {
-            }
+            this.commentProfile = new CommentProfileFactory()
+                    .makeByExtention(this.inputFile.getName());
         }
 
-    }
+        if (this.commentProfile == CommentProfiles.NULL) {
 
-    private String extractAllComments(SynthtextFile synthFile, String inputContent) {
-
-        StringBuilder sb = new StringBuilder();
-
-        for (CommentTags marker : synthFile.commentMarkers()) {
-
-            CommentExtractor extractor = marker.isMultiLine()
-                    ? new MultiLineCommentExtractor(marker.getStartTag(), marker.getEndTag())
-                    : new SingleLineCommentExtractor(marker.getStartTag());
-
-            List<String> comments = extractor.extractComments(inputContent);
-
-            comments.forEach(c -> sb.append(c).append("\n"));
+            //error("This source file is not known to synthtext.");
+            return;
         }
-        return sb.toString().trim();
-    }
+        List<TextMark> marks = this.commentProfile.getCommentMarker()
+                .markTextTypes(inputContent);
 
-    private List<String> extractSynthLines(String allComments) {
+        List<MarkedText> texts = extractTexts(this.inputContent, marks);
 
-        return new SingleLineCommentExtractor(CommentMarkers.SYNTHTEXT_LINE.getStartTag())
-                .extractComments(allComments);
+        SynthTable table = readSynthTable(texts, this.commentProfile);
+
+        texts.forEach(text -> {
+
+            if (text.getType() == TextType.Main) {
+
+                String reText = apply(text.getText(), table);
+
+                text.setText(reText);
+            }
+        });
+        StringBuilder outputContentBuilder = new StringBuilder();
+
+        texts.forEach(text -> outputContentBuilder.append(text.getText()));
+
+        File outputFile = inputFile.toPath().toAbsolutePath()
+                .getParent().normalize()
+                .resolve(table.getOutputFilename())
+                .toFile();
+
+        String outputContent = outputContentBuilder.toString();
+
+        try {
+            new FileIOHelper().tryWriteAll(outputFile, outputContent);
+        } catch (Exception e) {
+        }
+
     }
 
     private static final String LINEHEADER_REPLACE_PAIR = "rep";
@@ -98,23 +92,23 @@ public class SynthText {
             line = line.trim();
 
             if (line.length() > 4) {
-                
+
                 String lineHeader = line.substring(0, 3).toLowerCase();
 
                 String lineCode = line.substring(4, line.length()).trim();
 
                 if (LINEHEADER_REPLACE_PAIR.equals(lineHeader)) {
-                    
+
                     String[] segments = lineCode.split("\\s");
-                    
-                    if(segments.length>1){
-                        
+
+                    if (segments.length > 1) {
+
                         String key = segments[0];
-                        
+
                         String value = lineCode.substring(key.length(),
                                 lineCode.length()).trim();
-                        
-                        if(table.getReplaces().containsKey(key)){
+
+                        if (table.getReplaces().containsKey(key)) {
                             //TODO: warn
                             table.getReplaces().remove(key);
                         }
@@ -122,13 +116,71 @@ public class SynthText {
                     }
                 }
                 if (LINEHEADER_OUTPUT_FILE.equals(lineHeader)) {
-                    
+
                     table.setOutputFilename(lineCode);
                 }
             }
 
         }
         return table;
+    }
+
+    private List<MarkedText> extractTexts(String inputContent, List<TextMark> marks) {
+
+        List<MarkedText> markedTexts = new ArrayList<>();
+
+        marks.forEach(mark -> {
+
+            String text = inputContent.substring(mark.getStart(), mark.getEnd());
+
+            MarkedText markedText = new MarkedText(text, mark.getType());
+
+            markedTexts.add(markedText);
+        });
+        return markedTexts;
+    }
+
+    private SynthTable readSynthTable(List<MarkedText> texts, CommentProfile profile) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (MarkedText text : texts) {
+
+            if (text.getType() == TextType.Comment) {
+
+                String uncommented = profile.getCommentMarker()
+                        .uncomment(text.getText());
+
+                sb.append(uncommented.trim()).append("\n");
+            }
+        }
+        String[] commentLines = sb.toString().split("\n");
+
+        List<String> synthLines = new ArrayList<>();
+
+        for (String line : commentLines) {
+
+            line = line.trim();
+
+            if (line.startsWith("STX:")) {
+
+                synthLines.add(line.substring(4,line.length()).trim());
+            }
+        }
+        return readSynthTable(synthLines);
+    }
+
+    private String apply(String text, SynthTable table) {
+
+        String outputContent = text;
+
+        for (String key : table.getReplaces().keySet()) {
+
+            String value = table.getReplaces().get(key);
+
+            outputContent = outputContent.replace(key, value);
+        }
+        return outputContent;
     }
 
 }
