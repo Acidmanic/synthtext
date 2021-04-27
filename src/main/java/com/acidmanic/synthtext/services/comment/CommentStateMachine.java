@@ -123,7 +123,7 @@ public class CommentStateMachine extends GenericMachine<Character> {
 
                 if (matcher.get().isMatched()) {
 
-                    deliverMain.perform(true);
+                    deliverComment.run();
 
                     return MAIN_TEXT;
                 }
