@@ -164,7 +164,7 @@ public class SynthText1 {
 
             if (line.startsWith("STX:")) {
 
-                synthLines.add(line);
+                synthLines.add(line.substring(4,line.length()).trim());
             }
         }
         return readSynthTable(synthLines);

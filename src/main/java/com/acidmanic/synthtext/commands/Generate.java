@@ -12,6 +12,7 @@ import com.acidmanic.synthtext.commands.arguments.ArgumentsContext;
 import com.acidmanic.synthtext.commands.arguments.In;
 import com.acidmanic.synthtext.commands.arguments.Profile;
 import com.acidmanic.synthtext.services.SynthText;
+import com.acidmanic.synthtext.services.SynthText1;
 import java.io.File;
 
 /**
@@ -36,7 +37,7 @@ public class Generate extends FractalCommandBase<ArgumentsContext> {
             
             File inputFile = subCommandsExecutionContext.getInputFile();
             
-            SynthText synthText = new SynthText(inputFile);
+            SynthText1 synthText = new SynthText1(inputFile,subCommandsExecutionContext.getProfile());
             
             synthText.generate();
         }

@@ -7,6 +7,7 @@ package com.acidmanic.synthtext.commands.arguments;
 
 import com.acidmanic.commandline.commands.context.ExecutionContext;
 import com.acidmanic.synthtext.models.CommentProfile;
+import com.acidmanic.synthtext.models.builtin.CommentProfiles;
 import java.io.File;
 
 /**
@@ -16,7 +17,7 @@ import java.io.File;
 public class ArgumentsContext implements ExecutionContext {
 
     private File inputFile;
-    private CommentProfile profile;
+    private CommentProfile profile = CommentProfiles.NULL;
 
     private boolean valid;
 
