@@ -5,7 +5,7 @@
  */
 package com.acidmanic.synthtext.services;
 
-import com.acidmanic.synthtext.models.CommentMarker;
+import com.acidmanic.synthtext.models.CommentTags;
 import java.util.List;
 
 /**
@@ -19,7 +19,7 @@ public interface SynthtextFile {
     
     String fileExtension();
     
-    List<CommentMarker> commentMarkers();
+    List<CommentTags> commentMarkers();
     
     
 }

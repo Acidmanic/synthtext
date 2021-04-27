@@ -6,8 +6,8 @@
 package com.acidmanic.synthtext.services;
 
 import com.acidmanic.io.file.FileIOHelper;
-import com.acidmanic.synthtext.models.CommentMarker;
-import com.acidmanic.synthtext.models.CommentMarkers;
+import com.acidmanic.synthtext.models.CommentTags;
+import com.acidmanic.synthtext.models.builtin.CommentMarkers;
 import com.acidmanic.synthtext.models.SynthTable;
 import com.acidmanic.synthtext.services.comment.CommentExtractor;
 import com.acidmanic.synthtext.services.comment.MultiLineCommentExtractor;
@@ -68,7 +68,7 @@ public class SynthText {
 
         StringBuilder sb = new StringBuilder();
 
-        for (CommentMarker marker : synthFile.commentMarkers()) {
+        for (CommentTags marker : synthFile.commentMarkers()) {
 
             CommentExtractor extractor = marker.isMultiLine()
                     ? new MultiLineCommentExtractor(marker.getStartTag(), marker.getEndTag())

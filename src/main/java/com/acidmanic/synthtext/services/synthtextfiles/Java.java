@@ -5,8 +5,8 @@
  */
 package com.acidmanic.synthtext.services.synthtextfiles;
 
-import com.acidmanic.synthtext.models.CommentMarker;
-import com.acidmanic.synthtext.models.CommentMarkers;
+import com.acidmanic.synthtext.models.CommentTags;
+import com.acidmanic.synthtext.models.builtin.CommentMarkers;
 import com.acidmanic.synthtext.services.ListBuilder;
 import com.acidmanic.synthtext.services.SynthtextFile;
 import java.util.List;
@@ -28,8 +28,8 @@ public class Java implements SynthtextFile{
     }
 
     @Override
-    public List<CommentMarker> commentMarkers() {
-        return new ListBuilder<CommentMarker>()
+    public List<CommentTags> commentMarkers() {
+        return new ListBuilder<CommentTags>()
                 .add(CommentMarkers.DOUBLE_SLASH)
                 .add(CommentMarkers.SLASH_ASTRIX)
                 .build();

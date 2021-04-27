@@ -9,19 +9,19 @@ package com.acidmanic.synthtext.models;
  *
  * @author diego
  */
-public class CommentMarker {
+public class CommentTags {
 
     private final String startTag;
     private final String endTag;
     private final boolean multiLine;
 
-    public CommentMarker(String startTag, String endTag) {
+    public CommentTags(String startTag, String endTag) {
         this.startTag = startTag;
         this.endTag = endTag;
         this.multiLine = true;
     }
 
-    public CommentMarker(String startTag) {
+    public CommentTags(String startTag) {
         this.startTag = startTag;
         this.endTag = null;
         this.multiLine = false;
