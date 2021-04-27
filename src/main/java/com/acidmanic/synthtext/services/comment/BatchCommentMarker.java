@@ -73,12 +73,29 @@ public class BatchCommentMarker implements CommentMarker {
                     sub = new TextMark(offset + sub.getStart(),
                             offset + sub.getEnd(),
                             sub.getType());
-                    
+
                     newMarks.add(sub);
                 }
             }
         }
         return newMarks;
+    }
+
+    @Override
+    public String uncomment(String comment) {
+
+        for (CommentMarker marker : this.commentMarkers) {
+            try {
+                String uncommented = marker.uncomment(comment);
+
+                if (!comment.equals(uncommented)) {
+
+                    return uncommented;
+                }
+            } catch (Exception e) {
+            }
+        }
+        return comment;
     }
 
 }

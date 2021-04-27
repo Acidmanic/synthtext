@@ -42,4 +42,13 @@ public class MultiLineCommentMarker implements CommentMarker {
         return marks;
     }
 
+    @Override
+    public String uncomment(String comment) {
+        
+        if (comment.startsWith(startTag) && comment.endsWith(endTag)) {
+            return comment.substring(startTag.length(), comment.length() - endTag.length());
+        }
+        return comment;
+    }
+
 }

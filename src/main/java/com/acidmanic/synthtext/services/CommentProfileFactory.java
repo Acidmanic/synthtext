@@ -36,12 +36,14 @@ public class CommentProfileFactory {
         }
     }
 
-    public CommentProfile makeByExtention(String extention) {
+    public CommentProfile makeByExtention(String fileName) {
 
+        fileName = fileName.toLowerCase();
+        
         for (CommentProfile profile : commentProfiles) {
 
-            if (profile.getFileExtension().equalsIgnoreCase(extention)) {
-
+            if(fileName.endsWith(profile.getFileExtension())){
+                
                 return profile;
             }
         }
