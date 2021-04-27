@@ -10,6 +10,7 @@ import com.acidmanic.commandline.commands.Help;
 import com.acidmanic.commandline.commands.TypeRegistery;
 import com.acidmanic.synthtext.commands.arguments.ArgumentsContext;
 import com.acidmanic.synthtext.commands.arguments.In;
+import com.acidmanic.synthtext.commands.arguments.Profile;
 import com.acidmanic.synthtext.services.SynthText;
 import java.io.File;
 
@@ -24,6 +25,8 @@ public class Generate extends FractalCommandBase<ArgumentsContext> {
         registery.registerClass(Help.class);
 
         registery.registerClass(In.class);
+        
+        registery.registerClass(Profile.class);
     }
 
     @Override

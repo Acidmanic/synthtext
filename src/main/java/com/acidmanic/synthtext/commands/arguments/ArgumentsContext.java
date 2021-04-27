@@ -6,6 +6,7 @@
 package com.acidmanic.synthtext.commands.arguments;
 
 import com.acidmanic.commandline.commands.context.ExecutionContext;
+import com.acidmanic.synthtext.models.CommentProfile;
 import java.io.File;
 
 /**
@@ -15,6 +16,8 @@ import java.io.File;
 public class ArgumentsContext implements ExecutionContext {
 
     private File inputFile;
+    private CommentProfile profile;
+
     private boolean valid;
 
     public ArgumentsContext() {
@@ -35,6 +38,14 @@ public class ArgumentsContext implements ExecutionContext {
 
     public boolean isValid() {
         return valid;
+    }
+
+    public CommentProfile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(CommentProfile profile) {
+        this.profile = profile;
     }
 
 }

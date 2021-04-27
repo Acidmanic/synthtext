@@ -41,22 +41,30 @@ public class CommentProfileFactory {
         for (CommentProfile profile : commentProfiles) {
 
             if (profile.getFileExtension().equalsIgnoreCase(extention)) {
-                
+
                 return profile;
             }
         }
         return CommentProfiles.NULL;
     }
-    
+
     public CommentProfile makeByName(String name) {
 
         for (CommentProfile profile : commentProfiles) {
 
             if (profile.getName().equalsIgnoreCase(name)) {
-                
+
                 return profile;
             }
         }
         return CommentProfiles.NULL;
+    }
+
+    public List<CommentProfile> allProfiles() {
+
+        return new ListBuilder<CommentProfile>()
+                .addAll(commentProfiles)
+                .build();
+
     }
 }
