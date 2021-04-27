@@ -5,6 +5,7 @@
  */
 package com.acidmanic.synthtext.services.comment;
 
+import com.acidmanic.delegates.arg1.Action;
 import com.acidmanic.synthtext.models.TextMark;
 import com.acidmanic.synthtext.models.TextType;
 import com.acidmanic.synthtext.services.comment.states.CommentText;
@@ -44,11 +45,17 @@ public class CommentStateMachine extends GenericMachine<Character> {
         Final<Integer> receivedLength = new Final<>(0);
         Final<Integer> lastMark = new Final<>(0);
 
-        Runnable deliverMain = () -> {
+        Action<Boolean> deliverMain = cutTrailingTag -> {
 
-            textMarks.add(new TextMark(lastMark.get(), receivedLength.get(), TextType.Main));
+            int commentStart = receivedLength.get();
 
-            lastMark.set(receivedLength.get());
+            if (cutTrailingTag) {
+                commentStart -= startTag.length();
+            }
+
+            textMarks.add(new TextMark(lastMark.get(), commentStart, TextType.Main));
+
+            lastMark.set(commentStart);
 
             commentText.set(matcher.get().getReceivingTag());
         };
@@ -63,7 +70,7 @@ public class CommentStateMachine extends GenericMachine<Character> {
 
             mainText.set("");
         };
-        
+
         add(new Term<>(MAIN_TEXT, c -> {
 
             receivedLength.set(receivedLength.get() + 1);
@@ -74,7 +81,7 @@ public class CommentStateMachine extends GenericMachine<Character> {
 
                 if (matcher.get().isMatched()) {
 
-                    deliverMain.run();
+                    deliverMain.perform(true);
 
                     return COMMENT_TEXT;
                 }
@@ -93,7 +100,7 @@ public class CommentStateMachine extends GenericMachine<Character> {
 
             if (matcher.get().isMatched()) {
 
-                deliverMain.run();
+                deliverMain.perform(true);
 
                 return COMMENT_TEXT;
             }
@@ -116,7 +123,7 @@ public class CommentStateMachine extends GenericMachine<Character> {
 
                 if (matcher.get().isMatched()) {
 
-                    deliverMain.run();
+                    deliverMain.perform(true);
 
                     return MAIN_TEXT;
                 }
@@ -147,30 +154,29 @@ public class CommentStateMachine extends GenericMachine<Character> {
             }
             return END_TAG;
         }));
-        
-        
+
         this.finishPassing = () -> {
-            if(getCurrentState().equals(MAIN_TEXT)){
-                deliverMain.run();
+            if (getCurrentState().equals(MAIN_TEXT)) {
+                deliverMain.perform(false);
             }
-            if(getCurrentState().equals(COMMENT_TEXT)){
+            if (getCurrentState().equals(COMMENT_TEXT)) {
                 deliverComment.run();
             }
-            if(getCurrentState().equals(START_TAG)){
-                mainText.set(mainText.get()+matcher.get().getReceivingTag());
-                deliverMain.run();
+            if (getCurrentState().equals(START_TAG)) {
+                mainText.set(mainText.get() + matcher.get().getReceivingTag());
+                deliverMain.perform(false);
             }
-            if(getCurrentState().equals(END_TAG)){
-                commentText.set(commentText.get()+matcher.get().getReceivingTag());
+            if (getCurrentState().equals(END_TAG)) {
+                commentText.set(commentText.get() + matcher.get().getReceivingTag());
                 deliverComment.run();
             }
         };
     }
 
-    public void close(){
+    public void close() {
         this.finishPassing.run();
     }
-    
+
     public List<TextMark> getTextMarks() {
         return textMarks;
     }
