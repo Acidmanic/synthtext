@@ -7,7 +7,7 @@ package com.acidmanic.synthtext;
 
 import com.acidmanic.commandline.commands.Command;
 import com.acidmanic.commandline.commands.CommandFactory;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -21,7 +21,7 @@ public class Main {
 
         CommandFactory factory = new CommandFactory(registery);
 
-        HashMap<Command, String[]> commands = factory.make(args, true);
+        Map<Command, String[]> commands = factory.make(args, true);
 
         commands.forEach((c, ar) -> c.execute(ar));
 
